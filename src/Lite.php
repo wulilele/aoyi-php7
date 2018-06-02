@@ -15,8 +15,9 @@ class Lite
     private $APPID = "";
     private $SECRET = "";
     private $APIURL = "";
+    private $CONTENTSIGN = "";
 
-    private $timestr = "";
+    private $AES;
 
     /**
      * Lite 构造.
@@ -27,44 +28,53 @@ class Lite
         $this->APPID = $config['appid'];
         $this->SECRET = $config['secret'];
         $this->APIURL = $config['apiurl'];
+        $this->CONTENTSIGN = $config['contentsign'];
+
+        $this->AES = new AES($this->SECRET);
     }
 
     /*
-     * 发送短信
+     * 发送短信,多个手机号的请用半角逗号分隔
      */
-    public function send($templateid,$phone, $content, $name, $sex = '先生')
+    public function sendsms($phone, $content)
     {
-        return true;
+        $url = $this->APIURL . 'sendsms';
+        $data = [
+            'public_key' => $this->APPID,
+            'sign' => $this->sign(),
+            'encry' => "true",
+            'sms_data' => $this->AES->encrypt(json_encode([
+                'mobiles' => explode(',', $phone),
+                'smscontent' => $this->CONTENTSIGN . $content,
+                'extendedcode' => "",
+                'sendtime' => null
+            ]))
+        ];
+        //var_dump($data);
+        return $this->postData($url, $data);
     }
 
     /**
-     * 查询余额
+     * 查询余量
      */
-    public function getMoney()
+    public function getBalance()
     {
         $url = $this->APIURL . 'balance';
         $data = [
             'public_key' => $this->APPID,
-            'sign' => $this->encrypt_openssl()
+            'sign' => $this->sign()
         ];
-        print_r($data);
-        echo $url . "<hr />";
         return $this->postData($url, $data);
     }
 
-    //encrypt_openssl新版加密
-    public function encrypt_openssl()
+    /**
+     * @return 签名
+     */
+    private function sign()
     {
-        return openssl_encrypt($this->getMillisecond(), 'AES-128-ECB', $this->SECRET, 0, '');
+        return $this->AES->encrypt(date('YmdHis') . '800');
     }
 
-    /**
-     * @return 生成13位时间
-     */
-    private function getMillisecond()
-    {
-        return $this->timestr = date('YmdHis') . '000';
-    }
 
     /**
      * 发送请求
@@ -72,32 +82,23 @@ class Lite
      * @param $data
      * @return mixed
      */
-    private function postData($url, $data, $timeout = 300)
+    private function postData($url, $data = null, $timeout = 300)
     {
-        /* $ch = curl_init();
-         curl_setopt($ch, CURLOPT_URL, $url);
-         curl_setopt($ch, CURLOPT_POST, true);
-         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 跳过证书检查
-         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);  // 从证书中检查SSL加密算法是否存在
-         $handles = curl_exec($ch);
-         curl_close($ch);
-         return $handles;*/
-
-        $curl = curl_init();
-        //设置抓取的url
-        curl_setopt($curl, CURLOPT_URL, $url . '?public_key=' . $data['public_key'] . '&sign=' . $data['sign']);
-        //设置头文件的信息作为数据流输出
-        curl_setopt($curl, CURLOPT_HEADER, 1);
-        //设置获取的信息以文件流的形式返回，而不是直接输出。
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        //执行命令
-        $result = curl_exec($curl);
-        //关闭URL请求
-        curl_close($curl);
-        //显示获得的数据
+        $headers = array(
+            "Content-type: application/x-www-form-urlencoded;charset='utf-8'",
+            "Accept: application/json",
+            "Cache-Control: no-cache",
+            "Pragma: no-cache"
+        );
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $result = curl_exec($ch);
+        curl_close($ch);
         return $result;
     }
 }
