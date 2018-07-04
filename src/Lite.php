@@ -7,7 +7,7 @@
  */
 
 namespace RoseKnife\Aoyihutong;
-use RoseKnife\Aoyihutong\AES;
+use RoseKnife\Aoyihutong\Aes;
 
 date_default_timezone_set('Asia/Shanghai');
 
@@ -32,7 +32,7 @@ class Lite
         $this->APIURL = $config['apiurl'];
         $this->CONTENTSIGN = $config['contentsign'];
 
-        $this->AES = new AES($this->SECRET);
+        $this->AES = new Aes($this->SECRET);
     }
 
     /*

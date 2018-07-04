@@ -8,7 +8,7 @@
 
 namespace RoseKnife\Aoyihutong;
 
-class AES
+class Aes
 {
 
     private $key;
