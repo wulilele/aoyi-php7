@@ -1,25 +1,28 @@
 {
-  "name": "roseknife/aoyihutong",
-  "description": "奥易互通短信",
+  "name": "wulilele/aoyi-php7",
+  "description": "aoyi sms for php7",
   "keywords": [
-    "roseknife","奥易互通短信"
+    "wulilele","aoyihutong"
   ],
   "license": "GPL-3.0+",
   "homepage": "http://www.xmainc.com/",
   "type": "library",
   "authors": [
     {
-      "name": "RoseKnife Hua",
-      "email": "roseknife@qq.com",
+      "name": "Wulilele",
+      "email": "1181200882@qq.com",
       "role": "Developer"
     }
   ],
   "require": {
-    "php": ">=5.3.3"
+    "php": ">=7.0",
+    "ext-openssl": "*",
+    "ext-curl": "*",
+    "ext-json": "*"
   },
   "autoload": {
     "psr-4": {
-      "RoseKnife\\Aoyihutong\\": "src"
+      "Wulilele\\Aoyihutong\\": "src"
     }
   }
 }

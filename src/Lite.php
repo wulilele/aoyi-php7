@@ -6,8 +6,8 @@
  * Time: 16:01
  */
 
-namespace RoseKnife\Aoyihutong;
-use RoseKnife\Aoyihutong\Aes;
+namespace Wulilele\Aoyihutong;
+use Wulilele\Aoyihutong\Aes;
 
 date_default_timezone_set('Asia/Shanghai');
 
@@ -70,7 +70,7 @@ class Lite
     }
 
     /**
-     * @return 签名
+     * @return string 签名
      */
     private function sign()
     {
